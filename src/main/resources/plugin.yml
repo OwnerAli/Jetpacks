@@ -1,0 +1,4 @@
+name: Jetpacks
+version: '${project.version}'
+main: me.ogali.jetpacks.JetpackPlugin
+api-version: '1.20'
