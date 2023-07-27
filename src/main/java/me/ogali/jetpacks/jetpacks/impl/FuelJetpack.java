@@ -3,10 +3,10 @@ package me.ogali.jetpacks.jetpacks.impl;
 import me.ogali.jetpacks.fuels.domain.AbstractFuel;
 import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
 import me.ogali.jetpacks.runnables.impl.FuelBurnRunnable;
+import me.ogali.jetpacks.runnables.impl.ParticleRunnable;
+import me.ogali.jetpacks.utils.Chat;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,6 +20,11 @@ public class FuelJetpack extends AbstractJetpack {
         this.acceptableFuel = new HashSet<>();
     }
 
+    public FuelJetpack(FuelJetpack original) {
+        super(original);
+        this.acceptableFuel = new HashSet<>(original.acceptableFuel);
+    }
+
     public Set<AbstractFuel> getAcceptableFuel() {
         return acceptableFuel;
     }
@@ -27,16 +32,30 @@ public class FuelJetpack extends AbstractJetpack {
     @Override
     public void toggle(Player player) {
         if (isEnabled()) {
-            setEnabled(false);
-            player.setAllowFlight(false);
-            player.setFlying(false);
+            disable(player);
+            return;
+        }
+        enable(player);
+    }
+
+    private void enable(Player player) {
+        if (getCurrentFuelLevel() <= 0 || getCurrentFuelLevel() - getFuelBurnAmountPerBurnRate() <= 0) {
+            Chat.tell(player, "&c&ljetpack out of fuel!");
             return;
         }
         setEnabled(true);
         player.setAllowFlight(true);
         player.setFlying(true);
-        player.setVelocity(player.getVelocity().add(new Vector(0, 1, 0)));
-        new FuelBurnRunnable(this).start();
+        new FuelBurnRunnable(this, player).start();
+        new ParticleRunnable(this, player).start();
+        Chat.tell(player, "&e&lJETPACK &f→ &e&lENABLED");
+    }
+
+    private void disable(Player player) {
+        setEnabled(false);
+        player.setAllowFlight(false);
+        player.setFlying(false);
+        Chat.tell(player, "&e&lJETPACK &f→ &c&lDISABLED");
     }
 
 }

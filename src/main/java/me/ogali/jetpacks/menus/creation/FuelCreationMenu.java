@@ -2,27 +2,27 @@ package me.ogali.jetpacks.menus.creation;
 
 import com.github.stefvanschie.inventoryframework.gui.type.DispenserGui;
 import me.ogali.jetpacks.JetpackPlugin;
-import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
+import me.ogali.jetpacks.fuels.impl.ItemFuel;
 import me.ogali.jetpacks.utils.Chat;
 import me.ogali.jetpacks.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class JetpackCreationMenu {
+public class FuelCreationMenu {
 
     private ItemStack lastItem;
 
-    public void show(Player player, AbstractJetpack abstractJetpack) {
-        DispenserGui gui = new DispenserGui(Chat.colorize("&8&lInsert Jetpack Item Below"));
+    public void show(Player player, ItemFuel itemFuel) {
+        DispenserGui gui = new DispenserGui(Chat.colorize("&8&lInsert Fuel Item Below"));
         gui.setOnGlobalClick(click -> {
             click.setCancelled(true);
 
             if (click.getClickedInventory() == click.getView().getTopInventory()) {
                 ItemStack item = click.getInventory().getItem(4);
                 if (item != null && item.getType() != Material.GRAY_STAINED_GLASS_PANE && item.getType() != Material.AIR) {
-                    abstractJetpack.setJetpackItem(item);
-                    JetpackPlugin.getInstance().getJetpackRegistry().registerJetpack(abstractJetpack);
+                    itemFuel.setItem(item);
+                    JetpackPlugin.getInstance().getFuelRegistry().registerFuel(itemFuel);
                     player.closeInventory();
                     return;
                 }

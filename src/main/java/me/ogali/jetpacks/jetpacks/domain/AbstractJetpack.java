@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.checkerframework.checker.units.qual.N;
 
 import java.util.List;
 
@@ -24,8 +23,20 @@ public abstract class AbstractJetpack {
     private double speed;
     private Particle smokeParticle;
 
-    private int currentFuelAmount;
+    private double currentFuelLevel;
     private boolean enabled;
+
+    protected AbstractJetpack(AbstractJetpack original) {
+        this.id = original.id;
+        this.jetpackItem = copyItemStack(original.jetpackItem);
+        this.maxFuelCapacity = original.maxFuelCapacity;
+        this.fuelBurnAmountPerBurnRate = original.fuelBurnAmountPerBurnRate;
+        this.fuelBurnRateInSeconds = original.fuelBurnRateInSeconds;
+        this.speed = original.speed;
+        this.smokeParticle = original.smokeParticle;
+        this.currentFuelLevel = original.currentFuelLevel;
+        this.enabled = original.enabled;
+    }
 
     protected AbstractJetpack(String id, int maxFuelCapacity, int fuelBurnAmountPerBurnRate, long fuelBurnRateInSeconds, double speed, Particle smokeParticle) {
         this.id = id;
@@ -67,13 +78,17 @@ public abstract class AbstractJetpack {
         this.fuelBurnAmountPerBurnRate = fuelBurnAmountPerBurnRate;
     }
 
-    public int getCurrentFuelAmount() {
-        return currentFuelAmount;
+    public double getCurrentFuelLevel() {
+        return currentFuelLevel;
     }
 
-    public void setCurrentFuelAmount(int currentFuelAmount) {
-        this.currentFuelAmount = currentFuelAmount;
+    public void setCurrentFuelLevel(double currentFuelLevel) {
+        this.currentFuelLevel = currentFuelLevel;
         updateFuelAmountInItemLore();
+    }
+
+    public void addToCurrentFuelLevel(int fuelAmountToAdd) {
+        this.currentFuelLevel += fuelAmountToAdd;
     }
 
     public long getFuelBurnRateInSeconds() {
@@ -117,7 +132,20 @@ public abstract class AbstractJetpack {
         jetpackItemLoreList.stream()
                 .filter(jetpackItemLore -> jetpackItemLore.contains(Component.text("Fuel Level: ")))
                 .findFirst()
-                .ifPresent(component -> component.replaceText(builder -> builder.replacement("Fuel Level: " + getCurrentFuelAmount())));
+                .ifPresent(component -> component.replaceText(builder -> builder.replacement("Fuel Level: " + getCurrentFuelLevel())));
+    }
+
+    private ItemStack copyItemStack(ItemStack original) {
+        if (original == null) return null;
+
+        ItemStack copy = original.clone();
+        ItemMeta originalMeta = original.getItemMeta();
+        if (originalMeta != null) {
+            ItemMeta copyMeta = copy.getItemMeta();
+            copyMeta.getPersistentDataContainer().set(new NamespacedKey(JetpackPlugin.getInstance(), id), PersistentDataType.STRING, id);
+            copy.setItemMeta(copyMeta);
+        }
+        return copy;
     }
 
 }

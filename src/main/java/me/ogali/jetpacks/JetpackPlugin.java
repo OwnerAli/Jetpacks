@@ -2,16 +2,12 @@ package me.ogali.jetpacks;
 
 import co.aikar.commands.*;
 import me.ogali.jetpacks.commands.AdminCommands;
-import me.ogali.jetpacks.listeners.FuelApplyListener;
-import me.ogali.jetpacks.listeners.PlayerArmorEquipListener;
-import me.ogali.jetpacks.listeners.PlayerSneakListener;
-import me.ogali.jetpacks.listeners.PlayerToggleFlyListener;
+import me.ogali.jetpacks.listeners.*;
+import me.ogali.jetpacks.registries.FuelRegistry;
 import me.ogali.jetpacks.registries.JetpackPlayerRegistry;
 import me.ogali.jetpacks.registries.JetpackRegistry;
-import me.ogali.jetpacks.utils.Chat;
 import org.bukkit.Color;
 import org.bukkit.Particle;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,8 +18,9 @@ import java.util.stream.Collectors;
 public final class JetpackPlugin extends JavaPlugin {
 
     private static JetpackPlugin instance;
-    private JetpackRegistry jetpackRegistry;
     private JetpackPlayerRegistry jetpackPlayerRegistry;
+    private JetpackRegistry jetpackRegistry;
+    private FuelRegistry fuelRegistry;
 
     @Override
     public void onEnable() {
@@ -38,16 +35,17 @@ public final class JetpackPlugin extends JavaPlugin {
     }
 
     private void initializeRegistries() {
-        jetpackRegistry = new JetpackRegistry();
         jetpackPlayerRegistry = new JetpackPlayerRegistry();
+        jetpackRegistry = new JetpackRegistry();
+        fuelRegistry = new FuelRegistry();
     }
 
     private void registerListeners() {
         PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvents(new PlayerToggleFlyListener(), this);
-        pluginManager.registerEvents(new FuelApplyListener(), this);
-        pluginManager.registerEvents(new PlayerArmorEquipListener(), this);
-        pluginManager.registerEvents(new PlayerSneakListener(jetpackRegistry), this);
+        pluginManager.registerEvents(new FuelApplyListener(this), this);
+        pluginManager.registerEvents(new PlayerArmorEquipListener(jetpackRegistry), this);
+        pluginManager.registerEvents(new PlayerSneakListener(jetpackPlayerRegistry), this);
+        pluginManager.registerEvents(new PlayerJoinListener(jetpackPlayerRegistry), this);
     }
 
     private void registerCommands() {
@@ -63,7 +61,7 @@ public final class JetpackPlugin extends JavaPlugin {
                 .map(Enum::name)
                 .collect(Collectors.toList());
 
-        // Add the REDSTONE particle values
+        // Add colored REDSTONE particle values
         allParticleNames.add("REDSTONE_RED");
         allParticleNames.add("REDSTONE_GREEN");
         allParticleNames.add("REDSTONE_BLUE");
@@ -73,7 +71,6 @@ public final class JetpackPlugin extends JavaPlugin {
         allParticleNames.add("REDSTONE_ORANGE");
         allParticleNames.add("REDSTONE_GRAY");
         allParticleNames.add("REDSTONE_BLACK");
-
 
         commandCompletions.registerCompletion("particleList", handler -> allParticleNames);
     }
@@ -114,6 +111,10 @@ public final class JetpackPlugin extends JavaPlugin {
 
     public JetpackRegistry getJetpackRegistry() {
         return jetpackRegistry;
+    }
+
+    public FuelRegistry getFuelRegistry() {
+        return fuelRegistry;
     }
 
     public JetpackPlayerRegistry getJetpackPlayerRegistry() {

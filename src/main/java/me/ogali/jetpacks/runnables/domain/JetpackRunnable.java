@@ -17,16 +17,16 @@ public abstract class JetpackRunnable extends BukkitRunnable {
         return abstractJetpack;
     }
 
-    public BukkitTask getBukkitTask() {
-        return bukkitTask;
-    }
-
     public void setBukkitTask(BukkitTask bukkitTask) {
         this.bukkitTask = bukkitTask;
     }
 
     public abstract void start();
 
-    public abstract void stop();
+    public void stop() {
+        if (bukkitTask == null) return;
+        bukkitTask.cancel();
+        bukkitTask = null;
+    }
 
 }
