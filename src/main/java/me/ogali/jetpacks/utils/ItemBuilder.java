@@ -1,5 +1,6 @@
 package me.ogali.jetpacks.utils;
 
+import me.ogali.jetpacks.attatchments.domain.Attachment;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -120,6 +121,23 @@ public class ItemBuilder {
     }
 
     public ItemStack build() {
+        meta.setLore(lore);
+        enchants.forEach(item::addUnsafeEnchantment);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public ItemStack buildWithAttachmentLore(Attachment attachment) {
+        if (lore.isEmpty()) {
+            lore.add(0, "");
+            lore.add(1, attachment.getDisplayName());
+            lore.add(2, "");
+        } else {
+            int listMiddleIndex = lore.size() / 2;
+            lore.add(listMiddleIndex - 1, "");
+            lore.add(listMiddleIndex, Chat.colorizeHex(attachment.getId()));
+            lore.add(listMiddleIndex + 1, Chat.colorizeHex(attachment.getId()));
+        }
         meta.setLore(lore);
         enchants.forEach(item::addUnsafeEnchantment);
         item.setItemMeta(meta);

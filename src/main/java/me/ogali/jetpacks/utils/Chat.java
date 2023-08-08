@@ -35,7 +35,11 @@ public class Chat {
     }
 
     public static void tell(CommandSender toWhom, String message) {
-        toWhom.sendMessage(colorize(message));
+        toWhom.sendMessage(colorizeHex(message));
+    }
+
+    public static void tellFormatted(CommandSender toWhom, String message, Object... args) {
+        toWhom.sendMessage(colorizeHex(String.format(message, args)));
     }
 
     public static void sendActionBarWithSound(Player toWhom, String message) {

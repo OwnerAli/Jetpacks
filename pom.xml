@@ -88,5 +88,10 @@
             <artifactId>IF</artifactId>
             <version>0.10.11</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.simplix-softworks</groupId>
+            <artifactId>simplixstorage</artifactId>
+            <version>3.2.6</version>
+        </dependency>
     </dependencies>
 </project>

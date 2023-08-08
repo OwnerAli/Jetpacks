@@ -2,6 +2,7 @@ package me.ogali.jetpacks.jetpacks.impl;
 
 import me.ogali.jetpacks.fuels.domain.AbstractFuel;
 import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
+import me.ogali.jetpacks.players.JetpackPlayer;
 import me.ogali.jetpacks.runnables.impl.FuelBurnRunnable;
 import me.ogali.jetpacks.runnables.impl.ParticleRunnable;
 import me.ogali.jetpacks.utils.Chat;
@@ -13,49 +14,33 @@ import java.util.Set;
 
 public class FuelJetpack extends AbstractJetpack {
 
-    private final Set<AbstractFuel> acceptableFuel;
+    private final Set<AbstractFuel> acceptableFuelSet;
 
-    public FuelJetpack(String id, int maxFuelCapacity, int fuelBurnAmountPerBurnRate, long fuelBurnRateInSeconds, double speed, Particle particle) {
+    public FuelJetpack(String id, int maxFuelCapacity, double fuelBurnAmountPerBurnRate, long fuelBurnRateInSeconds, double speed, Particle particle) {
         super(id, maxFuelCapacity, fuelBurnAmountPerBurnRate, fuelBurnRateInSeconds, speed, particle);
-        this.acceptableFuel = new HashSet<>();
+        this.acceptableFuelSet = new HashSet<>();
     }
 
     public FuelJetpack(FuelJetpack original) {
         super(original);
-        this.acceptableFuel = new HashSet<>(original.acceptableFuel);
+        this.acceptableFuelSet = new HashSet<>(original.acceptableFuelSet);
     }
 
-    public Set<AbstractFuel> getAcceptableFuel() {
-        return acceptableFuel;
+    public Set<AbstractFuel> getAcceptableFuelSet() {
+        return acceptableFuelSet;
+    }
+
+    public void addAcceptableFuel(AbstractFuel abstractFuel) {
+        acceptableFuelSet.add(abstractFuel);
     }
 
     @Override
-    public void toggle(Player player) {
+    public void toggle(JetpackPlayer jetpackPlayer) {
         if (isEnabled()) {
-            disable(player);
+            disable(jetpackPlayer.getPlayer());
             return;
         }
-        enable(player);
-    }
-
-    private void enable(Player player) {
-        if (getCurrentFuelLevel() <= 0 || getCurrentFuelLevel() - getFuelBurnAmountPerBurnRate() <= 0) {
-            Chat.tell(player, "&c&ljetpack out of fuel!");
-            return;
-        }
-        setEnabled(true);
-        player.setAllowFlight(true);
-        player.setFlying(true);
-        new FuelBurnRunnable(this, player).start();
-        new ParticleRunnable(this, player).start();
-        Chat.tell(player, "&e&lJETPACK &f→ &e&lENABLED");
-    }
-
-    private void disable(Player player) {
-        setEnabled(false);
-        player.setAllowFlight(false);
-        player.setFlying(false);
-        Chat.tell(player, "&e&lJETPACK &f→ &c&lDISABLED");
+        enable(jetpackPlayer);
     }
 
 }

@@ -15,11 +15,20 @@ public class PlayerSneakListener implements Listener {
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
-        if (event.getPlayer().isSneaking() || event.getPlayer().isFlying()) return;
         jetpackPlayerRegistry.getJetpackPlayerByPlayer(event.getPlayer())
                 .ifPresent(jetpackPlayer -> {
                     if (jetpackPlayer.getCurrentJetpack() == null) return;
-                    jetpackPlayer.getCurrentJetpack().toggle(event.getPlayer());
+                    if (jetpackPlayer.getCurrentJetpack().isEnabled() && event.getPlayer().isFlying()) {
+
+                        if (event.getPlayer().isSneaking()) {
+                            jetpackPlayer.getCurrentJetpack().triggerHoldShiftAttachments(jetpackPlayer);
+                        } else {
+                            jetpackPlayer.getCurrentJetpack().triggerClickShiftAttachments(jetpackPlayer);
+                        }
+                        return;
+                    }
+                    if (event.getPlayer().isSneaking()) return;
+                    jetpackPlayer.getCurrentJetpack().toggle(jetpackPlayer);
                 });
     }
 

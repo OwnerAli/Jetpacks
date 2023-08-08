@@ -5,6 +5,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,12 @@ public class JetpackRegistry {
 
     public void registerJetpack(AbstractJetpack abstractJetpack) {
         abstractJetpackMap.put(abstractJetpack.getId(), abstractJetpack);
+    }
+
+    public void registerJetpacks(AbstractJetpack[] abstractJetpacks) {
+        for (AbstractJetpack abstractJetpack : abstractJetpacks) {
+            abstractJetpackMap.put(abstractJetpack.getId(), abstractJetpack);
+        }
     }
 
     public void unregisterJetpackById(String id) {
@@ -31,7 +38,8 @@ public class JetpackRegistry {
 
         for (NamespacedKey key : dataContainer.getKeys()) {
             if (!key.getNamespace().equalsIgnoreCase("jetpacks")) continue;
-            return getJetpackById(key.getKey());
+            if (!key.getKey().contains("jetpack-")) continue;
+            return getJetpackById(key.getKey().split("-")[1]);
         }
         return Optional.empty();
     }
@@ -42,6 +50,14 @@ public class JetpackRegistry {
 
     public boolean isJetpackItem(ItemStack itemStack) {
         return getJetpackByItemStack(itemStack).isPresent();
+    }
+
+    public Collection<AbstractJetpack> getRegisteredJetpacks() {
+        return abstractJetpackMap.values();
+    }
+
+    public Collection<String> getRegisteredJetpackIds() {
+        return abstractJetpackMap.keySet();
     }
 
 }
