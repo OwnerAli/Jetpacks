@@ -115,7 +115,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder glowing() {
-        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        meta.addEnchant(Enchantment.LURE, -1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         return this;
     }

@@ -22,7 +22,6 @@ public class AdminCommands extends BaseCommand {
 
     @Subcommand("create")
     @Syntax("<id> <max fuel capacity> <fuel burn amount per burn> <fuel burn rate in seconds> <speed> <smoke particle>")
-    @CommandCompletion("@particleList")
     public void onJetpackCreate(Player player, String id, int maxFuelCapacity, int fuelBurnPerBurn, long fuelBurnRateInSeconds, double speed, Particle particle) {
         JetpackPlugin.getInstance().getJetpackRegistry()
                 .getJetpackById(id)
@@ -107,6 +106,24 @@ public class AdminCommands extends BaseCommand {
                         player.getInventory().addItem(item);
                     }
                     Chat.tellFormatted(player, "&aAdded %sx %s fuel to your inventory!", amount == null ? 1 : amount, id);
+                });
+    }
+
+    @Subcommand("items get")
+    @Syntax("<id> (<amount>)")
+    @CommandCompletion("@switchableItemIdList")
+    public void onItemGet(Player player, String id, @Optional Integer amount) {
+        JetpackPlugin.getInstance().getSwitchableItemRegistry()
+                .getSwitchableItemById(id)
+                .ifPresent(switchableItem -> {
+                    if (amount == null) {
+                        player.getInventory().addItem(switchableItem.getSwitchableItem());
+                    } else {
+                        ItemStack item = switchableItem.getSwitchableItem().clone();
+                        item.setAmount(amount);
+                        player.getInventory().addItem(item);
+                    }
+                    Chat.tellFormatted(player, "&aAdded %sx %s to your inventory!", amount == null ? 1 : amount, id);
                 });
     }
 

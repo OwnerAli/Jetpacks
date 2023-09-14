@@ -29,7 +29,7 @@ public class ItemFuel extends AbstractFuel {
                 return;
             }
             click.setCancelled(true);
-            PersistentDataUtils.addFuelToItem(jetpackItem, fuelItem.getAmount());
+            PersistentDataUtils.addFuelToItem(jetpackItem, fuelItem.getAmount(), getId());
             Chat.tell(click.getWhoClicked(), "&e&lJETPACK &f→ &eAdded &f" + fuelItem.getAmount() + " &efuel to your jetpack!");
             fuelItem.setAmount(0);
         };

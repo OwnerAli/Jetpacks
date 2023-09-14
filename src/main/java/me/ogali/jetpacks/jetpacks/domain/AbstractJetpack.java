@@ -4,12 +4,12 @@ import me.ogali.jetpacks.JetpackPlugin;
 import me.ogali.jetpacks.attatchments.domain.Attachment;
 import me.ogali.jetpacks.attatchments.domain.impl.ClickShiftAttachmentAction;
 import me.ogali.jetpacks.attatchments.domain.impl.HoldShiftAttachmentAction;
+import me.ogali.jetpacks.fuels.domain.FuelHolder;
 import me.ogali.jetpacks.players.JetpackPlayer;
 import me.ogali.jetpacks.runnables.impl.FuelBurnRunnable;
 import me.ogali.jetpacks.runnables.impl.ParticleRunnable;
 import me.ogali.jetpacks.utils.Chat;
 import me.ogali.jetpacks.utils.PersistentDataUtils;
-import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -32,19 +32,19 @@ public abstract class AbstractJetpack {
     private Particle smokeParticle;
     private final List<Attachment> attachmentList;
 
-    private double currentFuelLevel;
+    private FuelHolder fuelHolder;
     private boolean enabled;
 
     protected AbstractJetpack(AbstractJetpack original) {
         this.id = original.id;
-        this.jetpackItem = original.getJetpackItem();
+        this.jetpackItem = original.jetpackItem;
         this.maxFuelCapacity = original.maxFuelCapacity;
         this.fuelBurnAmountPerBurnRate = original.fuelBurnAmountPerBurnRate;
         this.fuelBurnRateInSeconds = original.fuelBurnRateInSeconds;
         this.speed = original.speed;
         this.smokeParticle = original.smokeParticle;
-        this.currentFuelLevel = original.currentFuelLevel;
-        this.attachmentList = original.getAttachmentList();
+        this.fuelHolder = new FuelHolder(original.fuelHolder);
+        this.attachmentList = original.attachmentList;
         this.enabled = original.enabled;
     }
 
@@ -56,6 +56,7 @@ public abstract class AbstractJetpack {
         this.speed = speed;
         this.smokeParticle = smokeParticle;
         this.attachmentList = new ArrayList<>();
+        this.fuelHolder = new FuelHolder();
     }
 
     public String getId() {
@@ -90,19 +91,6 @@ public abstract class AbstractJetpack {
         this.fuelBurnAmountPerBurnRate = fuelBurnAmountPerBurnRate;
     }
 
-    public double getCurrentFuelLevel() {
-        return currentFuelLevel;
-    }
-
-    public void setCurrentFuelLevel(double currentFuelLevel) {
-        this.currentFuelLevel = currentFuelLevel;
-        updateFuelAmountInItemLore();
-    }
-
-    public void addToCurrentFuelLevel(int fuelAmountToAdd) {
-        this.currentFuelLevel += fuelAmountToAdd;
-    }
-
     public long getFuelBurnRateInSeconds() {
         return fuelBurnRateInSeconds;
     }
@@ -125,6 +113,18 @@ public abstract class AbstractJetpack {
 
     public void setSmokeParticle(Particle smokeParticle) {
         this.smokeParticle = smokeParticle;
+    }
+
+    public FuelHolder getFuelHolder() {
+        return fuelHolder;
+    }
+
+    public boolean consumeAndCheckFuelStatus() {
+        return fuelHolder.consumeAndCheckFuelStatus(fuelBurnAmountPerBurnRate);
+    }
+
+    public boolean consumeAndCheckFuelStatus(int amountToConsume) {
+        return fuelHolder.consumeAndCheckFuelStatus(amountToConsume);
     }
 
     public void addAttachment(Attachment attachment) {
@@ -159,21 +159,11 @@ public abstract class AbstractJetpack {
 
     public abstract void toggle(JetpackPlayer jetpackPlayer);
 
-    private void updateFuelAmountInItemLore() {
-        List<Component> jetpackItemLoreList = jetpackItem.getItemMeta().lore();
-
-        if (jetpackItemLoreList == null) return;
-        jetpackItemLoreList.stream()
-                .filter(jetpackItemLore -> jetpackItemLore.contains(Component.text("Fuel Level: ")))
-                .findFirst()
-                .ifPresent(component -> component.replaceText(builder -> builder.replacement("Fuel Level: " + getCurrentFuelLevel())));
-    }
-
     public void enable(JetpackPlayer jetpackPlayer) {
         Player player = jetpackPlayer.getPlayer();
 
-        if (getCurrentFuelLevel() <= 0 || getCurrentFuelLevel() - getFuelBurnAmountPerBurnRate() <= 0) {
-            Chat.tell(player, "&c&ljetpack out of fuel!");
+        if (fuelHolder.hasNoFuel()) {
+            Chat.tell(player, "&e&lJETPACK &f→ &c&lOut of fuel!");
             return;
         }
         setEnabled(true);
@@ -195,8 +185,11 @@ public abstract class AbstractJetpack {
     }
 
     public void disable(Player player, ItemStack jetpackItem) {
-        PersistentDataUtils.setFuelOfItem(jetpackItem, currentFuelLevel);
+        PersistentDataUtils.setFuelOfItem(jetpackItem, fuelHolder);
         disable(player);
     }
 
+    public void setFuelHolder(FuelHolder fuelHolder) {
+        this.fuelHolder = fuelHolder;
+    }
 }

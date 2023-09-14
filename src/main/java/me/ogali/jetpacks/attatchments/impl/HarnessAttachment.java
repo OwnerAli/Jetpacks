@@ -40,19 +40,11 @@ public class HarnessAttachment implements Attachment {
     public HoldShiftAttachmentAction getTriggerAction() {
         return jetpackPlayer -> {
             Player player = jetpackPlayer.getPlayer();
-
-            if (!player.isSneaking()) {
-                fuelGenerateTask.cancel();
-                return;
-            }
-            fuelGenerateTask = Bukkit.getScheduler().runTaskTimerAsynchronously(JetpackPlugin.getInstance(),
-                    () -> {
-                        player.spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 1, 0), 10,
-                                new Particle.DustOptions(Color.GREEN, 1));
-                        jetpackPlayer.getCurrentJetpack().setCurrentFuelLevel(jetpackPlayer.getCurrentJetpack()
-                                .getCurrentFuelLevel() + 5);
-                        Chat.tell(player, "&2&l+5 FUEL");
-                    }, 20 * 5, 20 * 5);
+            player.spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 1, 0), 10,
+                    new Particle.DustOptions(Color.GREEN, 1));
+//            jetpackPlayer.getCurrentJetpack().setCurrentFuelLevel(jetpackPlayer.getCurrentJetpack()
+//                    .getCurrentFuelLevel() + 5);
+            Chat.tell(player, "&2&l+5 FUEL");
         };
     }
 

@@ -54,13 +54,13 @@ public class TransmitAttachment implements Attachment {
                 return;
             }
             if (currentJetpack instanceof FuelJetpack fuelJetpack) {
-                if (fuelJetpack.getCurrentFuelLevel() - 5 <= 0) {
+                if (!fuelJetpack.consumeAndCheckFuelStatus(5)) {
                     if (sentNotEnoughFuelMessage) return;
                     sentNotEnoughFuelMessage = true;
                     Chat.tell(player, "&cYou don't have enough fuel to transmit!");
                     return;
                 }
-                fuelJetpack.setCurrentFuelLevel(fuelJetpack.getCurrentFuelLevel() - 5);
+                fuelJetpack.consumeAndCheckFuelStatus(5);
                 Chat.tell(player, "&c&l-5 FUEL");
                 attachmentCooldown.start();
                 lastCooldownTime = 0;

@@ -24,14 +24,10 @@ public class FuelBurnRunnable extends JetpackRunnable {
 
     @Override
     public void run() {
-        if (!jetpack.isEnabled() || jetpack.getCurrentFuelLevel() - jetpack.getFuelBurnAmountPerBurnRate() <= 0) {
-            jetpack.setCurrentFuelLevel(0);
+        if (!jetpack.consumeAndCheckFuelStatus()) {
             jetpack.disable(jetpackPlayer.getPlayer());
             stop();
-            return;
         }
-        double newFuelAmount = jetpack.getCurrentFuelLevel() - jetpack.getFuelBurnAmountPerBurnRate();
-        jetpack.setCurrentFuelLevel(newFuelAmount);
     }
 
 }

@@ -6,6 +6,7 @@ import me.ogali.jetpacks.fuels.impl.ItemFuel;
 import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
 import me.ogali.jetpacks.jetpacks.impl.FuelJetpack;
 import me.ogali.jetpacks.registries.JetpackRegistry;
+import me.ogali.jetpacks.utils.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -32,10 +33,14 @@ public class ApplyItemsToJetpackListener implements Listener {
             return;
         }
 
+
         if (event.getAction() != InventoryAction.SWAP_WITH_CURSOR
                 && event.getAction() != InventoryAction.PLACE_ONE
                 && event.getAction() != InventoryAction.PLACE_SOME
                 && event.getAction() != InventoryAction.PLACE_ALL) return;
+
+        jetpackPlugin.getSwitchableItemRegistry().getSwitchableItemByItem(event.getCursor())
+                .ifPresent(switchableItem -> switchableItem.getInventoryClickEventConsumer().accept(event));
 
         ItemStack cursorItem = event.getCursor();
         ItemStack currentItem = event.getCurrentItem();

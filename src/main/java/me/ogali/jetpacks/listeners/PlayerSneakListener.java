@@ -1,5 +1,6 @@
 package me.ogali.jetpacks.listeners;
 
+import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
 import me.ogali.jetpacks.registries.JetpackPlayerRegistry;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,20 +16,16 @@ public class PlayerSneakListener implements Listener {
 
     @EventHandler
     public void onSneak(PlayerToggleSneakEvent event) {
+        if (event.getPlayer().isSneaking()) return;
         jetpackPlayerRegistry.getJetpackPlayerByPlayer(event.getPlayer())
                 .ifPresent(jetpackPlayer -> {
-                    if (jetpackPlayer.getCurrentJetpack() == null) return;
-                    if (jetpackPlayer.getCurrentJetpack().isEnabled() && event.getPlayer().isFlying()) {
-
-                        if (event.getPlayer().isSneaking()) {
-                            jetpackPlayer.getCurrentJetpack().triggerHoldShiftAttachments(jetpackPlayer);
-                        } else {
-                            jetpackPlayer.getCurrentJetpack().triggerClickShiftAttachments(jetpackPlayer);
-                        }
+                    AbstractJetpack currentJetpack = jetpackPlayer.getCurrentJetpack();
+                    if (currentJetpack == null) return;
+                    if (currentJetpack.isEnabled() && event.getPlayer().isFlying()) {
+                        currentJetpack.triggerClickShiftAttachments(jetpackPlayer);
                         return;
                     }
-                    if (event.getPlayer().isSneaking()) return;
-                    jetpackPlayer.getCurrentJetpack().toggle(jetpackPlayer);
+                    currentJetpack.toggle(jetpackPlayer);
                 });
     }
 
