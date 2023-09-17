@@ -40,11 +40,12 @@ public class ItemFuel extends AbstractFuel {
     }
 
     public ItemStack getItem() {
-        ItemMeta itemMeta = item.getItemMeta();
+        ItemStack clonedFuelItem = item.clone();
+        ItemMeta itemMeta = clonedFuelItem.getItemMeta();
         itemMeta.getPersistentDataContainer().set(new NamespacedKey(JetpackPlugin.getInstance(), "fuel-" + getId()),
                 PersistentDataType.STRING, getId());
-        item.setItemMeta(itemMeta);
-        return item;
+        clonedFuelItem.setItemMeta(itemMeta);
+        return clonedFuelItem;
     }
 
     public void setItem(ItemStack item) {

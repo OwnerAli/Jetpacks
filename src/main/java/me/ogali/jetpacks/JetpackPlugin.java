@@ -1,6 +1,11 @@
 package me.ogali.jetpacks;
 
-import co.aikar.commands.*;
+import co.aikar.commands.BukkitCommandCompletionContext;
+import co.aikar.commands.CommandCompletions;
+import co.aikar.commands.PaperCommandManager;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.LocationFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import me.ogali.jetpacks.attatchments.impl.HarnessAttachment;
 import me.ogali.jetpacks.attatchments.impl.TransmitAttachment;
 import me.ogali.jetpacks.commands.AdminCommands;
@@ -8,17 +13,17 @@ import me.ogali.jetpacks.files.impl.FuelsFile;
 import me.ogali.jetpacks.files.impl.JetpacksFile;
 import me.ogali.jetpacks.items.impl.FuelExtractorSwitchableItem;
 import me.ogali.jetpacks.listeners.*;
+import me.ogali.jetpacks.regions.impl.FuelExtractorExecutableRegion;
+import me.ogali.jetpacks.regions.impl.JetpackTunerExecutableRegion;
 import me.ogali.jetpacks.registries.*;
-import org.bukkit.Color;
-import org.bukkit.Particle;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public final class JetpackPlugin extends JavaPlugin {
+
+    public LocationFlag animationFinalLocationFlag = new LocationFlag("animation-final-location");
+    public FuelExtractorExecutableRegion fuelExtractorExecutableRegion;
+    public JetpackTunerExecutableRegion jetpackTunerExecutableRegion;
 
     private static JetpackPlugin instance;
     private JetpackPlayerRegistry jetpackPlayerRegistry;
@@ -30,8 +35,16 @@ public final class JetpackPlugin extends JavaPlugin {
     private JetpacksFile jetpacksFile;
 
     @Override
-    public void onEnable() {
+    public void onLoad() {
         instance = this;
+        FlagRegistry flagRegistry = WorldGuard.getInstance().getFlagRegistry();
+        flagRegistry.register(animationFinalLocationFlag);
+        this.fuelExtractorExecutableRegion = new FuelExtractorExecutableRegion(flagRegistry);
+        this.jetpackTunerExecutableRegion = new JetpackTunerExecutableRegion(flagRegistry);
+    }
+
+    @Override
+    public void onEnable() {
         saveDefaultConfig();
         initializeRegistries();
         registerListeners();
@@ -39,12 +52,24 @@ public final class JetpackPlugin extends JavaPlugin {
         initializeFiles();
         loadDataFromFiles();
         loadAttachments();
-        loadSwitchableItems();
+        registerSwitchableItems();
     }
 
     @Override
     public void onDisable() {
         saveDataToFiles();
+    }
+
+    public LocationFlag getAnimationFinalLocationFlag() {
+        return animationFinalLocationFlag;
+    }
+
+    public FuelExtractorExecutableRegion getFuelExtractorExecutableRegion() {
+        return fuelExtractorExecutableRegion;
+    }
+
+    public JetpackTunerExecutableRegion getJetpackTunerExecutableRegion() {
+        return jetpackTunerExecutableRegion;
     }
 
     public static JetpackPlugin getInstance() {
@@ -101,7 +126,7 @@ public final class JetpackPlugin extends JavaPlugin {
         attachmentRegistry.registerAttachment(new HarnessAttachment());
     }
 
-    private void loadSwitchableItems() {
+    private void registerSwitchableItems() {
         new FuelExtractorSwitchableItem();
     }
 
@@ -116,6 +141,7 @@ public final class JetpackPlugin extends JavaPlugin {
         pluginManager.registerEvents(new PlayerInteractListener(jetpackRegistry, jetpackPlayerRegistry), this);
         pluginManager.registerEvents(new PlayerDeathListener(jetpackPlayerRegistry), this);
         pluginManager.registerEvents(new PlayerMoveListener(jetpackPlayerRegistry), this);
+        pluginManager.registerEvents(new PlayerDropItemListener(this), this);
     }
 
     private void registerCommands() {

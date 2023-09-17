@@ -29,15 +29,22 @@ public final class FuelHolder {
 
         if (firstFuel.isEmpty()) return false;
 
-        String fuelToRemove = firstFuel.get();
-        double currentAmount = fuelTypeAmountMap.get(fuelToRemove);
+        String fuelToConsume = firstFuel.get();
+        double currentAmount = fuelTypeAmountMap.get(fuelToConsume);
 
         if (currentAmount <= amountToRemove) {
-            fuelTypeAmountMap.remove(fuelToRemove);
+            fuelTypeAmountMap.remove(fuelToConsume);
 
             return getFirstFuel().isPresent();
         }
-        fuelTypeAmountMap.replace(fuelToRemove, currentAmount - amountToRemove);
+
+        double newFuelAmount = currentAmount - amountToRemove;
+
+        if (newFuelAmount <= 0) {
+            fuelTypeAmountMap.remove(fuelToConsume);
+        } else {
+            fuelTypeAmountMap.replace(fuelToConsume, newFuelAmount);
+        }
         return true;
     }
 
@@ -53,6 +60,13 @@ public final class FuelHolder {
         return fuelTypeAmountMap.keySet()
                 .stream()
                 .findFirst();
+    }
+
+    @Override
+    public String toString() {
+        return "FuelHolder{" +
+                "fuelTypeAmountMap=" + fuelTypeAmountMap +
+                '}';
     }
 
 }

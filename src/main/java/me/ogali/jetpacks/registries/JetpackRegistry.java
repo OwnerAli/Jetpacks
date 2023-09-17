@@ -15,13 +15,7 @@ public class JetpackRegistry {
     private final Map<String, AbstractJetpack> abstractJetpackMap = new HashMap<>();
 
     public void registerJetpack(AbstractJetpack abstractJetpack) {
-        abstractJetpackMap.put(abstractJetpack.getId(), abstractJetpack);
-    }
-
-    public void registerJetpacks(AbstractJetpack[] abstractJetpacks) {
-        for (AbstractJetpack abstractJetpack : abstractJetpacks) {
-            abstractJetpackMap.put(abstractJetpack.getId(), abstractJetpack);
-        }
+        abstractJetpackMap.put(abstractJetpack.getId().toLowerCase(), abstractJetpack);
     }
 
     public void unregisterJetpackById(String id) {

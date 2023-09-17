@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 
 public class PersistentDataUtils {
 
-    private static final NamespacedKey JETPACK_FUEL_LEVEL_KEY = new NamespacedKey(JetpackPlugin.getInstance(), "fuelLevel");
-
     public static void setFuelOfItem(ItemStack jetpackItem, FuelHolder fuelHolder) {
         ItemMeta itemMeta = jetpackItem.getItemMeta();
         PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
@@ -23,7 +21,7 @@ public class PersistentDataUtils {
 
         for (NamespacedKey key : persistentDataContainer.getKeys()) {
             if (!key.getNamespace().equalsIgnoreCase("jetpacks")) continue;
-            if (!key.getKey().contains("fuelLevel-")) continue;
+            if (!key.getKey().contains("fuellevel-")) continue;
             fuelNamespacedKeys.add(key);
         }
 
@@ -31,8 +29,12 @@ public class PersistentDataUtils {
 
         fuelNamespacedKeys.forEach(namespacedKey -> {
             String fuelId = namespacedKey.getKey().split("-")[1];
-            Double fuelAmount = fuelTypeAmountMap.get(fuelId);
+            Double fuelAmount = fuelTypeAmountMap.getOrDefault(fuelId, 0.0);
 
+            if (fuelAmount == 0.0) {
+                persistentDataContainer.remove(namespacedKey);
+                return;
+            }
             persistentDataContainer.set(namespacedKey, PersistentDataType.DOUBLE, fuelAmount);
         });
 
@@ -46,13 +48,11 @@ public class PersistentDataUtils {
 
         for (NamespacedKey key : persistentDataContainer.getKeys()) {
             if (!key.getNamespace().equalsIgnoreCase("jetpacks")) continue;
-            if (!key.getKey().contains("fuelLevel-")) continue;
+            if (!key.getKey().contains("fuellevel-")) continue;
             fuelNamespacedKeys.add(key);
         }
 
-        fuelNamespacedKeys.forEach(namespacedKey -> {
-            persistentDataContainer.set(namespacedKey, PersistentDataType.DOUBLE, amount);
-        });
+        fuelNamespacedKeys.forEach(namespacedKey -> persistentDataContainer.set(namespacedKey, PersistentDataType.DOUBLE, amount));
 
         jetpackItem.setItemMeta(itemMeta);
     }
@@ -63,8 +63,7 @@ public class PersistentDataUtils {
         if (fuelHolderFromItem.isEmpty()) return;
         FuelHolder fuelHolder = fuelHolderFromItem.get();
 
-        fuelHolder.incrementFuelAmount(fuelId, fuelAmountToAdd);
-        Double fuelLevelFromItem = fuelHolder.getFuelTypeAmountMap().get(fuelId);
+        Double fuelLevelFromItem = fuelHolder.getFuelTypeAmountMap().getOrDefault(fuelId, 0.0);
 
         double newFuelLevel = fuelLevelFromItem + fuelAmountToAdd;
 
@@ -72,6 +71,7 @@ public class PersistentDataUtils {
         PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
         persistentDataContainer.set(new NamespacedKey(JetpackPlugin.getInstance(), "fuelLevel-" + fuelId),
                 PersistentDataType.DOUBLE, newFuelLevel);
+        fuelHolder.incrementFuelAmount(fuelId, fuelAmountToAdd);
 
         jetpackItem.setItemMeta(itemMeta);
     }
@@ -85,7 +85,7 @@ public class PersistentDataUtils {
 
         for (NamespacedKey key : jetpackItem.getItemMeta().getPersistentDataContainer().getKeys()) {
             if (!key.getNamespace().equalsIgnoreCase("jetpacks")) continue;
-            if (!key.getKey().contains("fuelLevel-")) continue;
+            if (!key.getKey().contains("fuellevel-")) continue;
             fuelNamespacedKeys.add(key);
         }
 

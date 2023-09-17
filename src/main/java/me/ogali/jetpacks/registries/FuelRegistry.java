@@ -15,7 +15,7 @@ public class FuelRegistry {
     private final Map<String, AbstractFuel> fuelMap = new HashMap<>();
 
     public void registerFuel(AbstractFuel abstractFuel) {
-        fuelMap.put(abstractFuel.getId(), abstractFuel);
+        fuelMap.put(abstractFuel.getId().toLowerCase(), abstractFuel);
     }
 
     public void unregisterFuelById(String id) {

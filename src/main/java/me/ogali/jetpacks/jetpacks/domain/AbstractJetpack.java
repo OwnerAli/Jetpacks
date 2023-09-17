@@ -64,11 +64,12 @@ public abstract class AbstractJetpack {
     }
 
     public ItemStack getJetpackItem() {
-        ItemMeta itemMeta = jetpackItem.getItemMeta();
+        ItemStack clonedJetpackItem = jetpackItem.clone();
+        ItemMeta itemMeta = clonedJetpackItem.getItemMeta();
         itemMeta.getPersistentDataContainer().set(new NamespacedKey(JetpackPlugin.getInstance(), "jetpack-" + id),
                 PersistentDataType.STRING, id);
-        jetpackItem.setItemMeta(itemMeta);
-        return jetpackItem;
+        clonedJetpackItem.setItemMeta(itemMeta);
+        return clonedJetpackItem;
     }
 
     public void setJetpackItem(ItemStack jetpackItem) {

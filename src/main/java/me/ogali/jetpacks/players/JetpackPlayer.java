@@ -5,6 +5,7 @@ import me.ogali.jetpacks.cooldowns.Cooldown;
 import me.ogali.jetpacks.fuels.domain.FuelHolder;
 import me.ogali.jetpacks.jetpacks.domain.AbstractJetpack;
 import me.ogali.jetpacks.jetpacks.impl.FuelJetpack;
+import me.ogali.jetpacks.utils.Chat;
 import me.ogali.jetpacks.utils.PersistentDataUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -44,6 +45,7 @@ public class JetpackPlayer {
         currentJetpack = new FuelJetpack(fuelJetpack);
         Optional<FuelHolder> fuelHolderFromItem = PersistentDataUtils.getFuelHolderFromItem(jetpackItem);
         currentJetpack.setFuelHolder(fuelHolderFromItem.orElseGet(FuelHolder::new));
+        Chat.log(fuelHolderFromItem.toString());
 
         ItemMeta itemMeta = jetpackItem.getItemMeta();
         List<Attachment> itemAttachmentsList = PersistentDataUtils.getCurrentAttachments(itemMeta.getPersistentDataContainer());
